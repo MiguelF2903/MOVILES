@@ -8,7 +8,7 @@ import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
 import com.gastop.app.data.model.Usuario
 
-@Database(entities = [Usuario::class, Categoria::class, Transaccion::class], version = 1, exportSchema = false)
+@Database(entities = [Usuario::class, Categoria::class, Transaccion::class], version = 2, exportSchema = false)
 abstract class GastopDatabase : RoomDatabase() {
     abstract fun gastopDao(): GastopDao
 
@@ -22,7 +22,9 @@ abstract class GastopDatabase : RoomDatabase() {
                     context.applicationContext,
                     GastopDatabase::class.java,
                     "gastop_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration(true)
+                .build()
                 INSTANCE = instance
                 instance
             }

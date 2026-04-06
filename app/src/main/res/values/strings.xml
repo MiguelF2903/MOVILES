@@ -14,7 +14,7 @@
     <string name="tipo_ingreso">Ingreso</string>
     <string name="monto_hint">Monto (Solo positivos)</string>
     <string name="concepto_hint">Concepto</string>
-    <string name="categoria_hint">Categoría ID (Obligatorio)</string>
+    <string name="categoria_hint">Categoría (Selecciona una)</string>
     <string name="escanear_recibo">Escanear Recibo (OCR)</string>
     <string name="guardar_transaccion">Guardar Transacción</string>
     <string name="wallet_placeholder">Billetera — Próximamente</string>

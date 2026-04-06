@@ -99,19 +99,20 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Categoría ID -->
+            <!-- Categoría Selector -->
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategoria"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                android:hint="@string/categoria_hint"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCategoriaId"
+                <AutoCompleteTextView
+                    android:id="@+id/actvCategoria"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/categoria_hint"
-                    android:inputType="number" />
+                    android:inputType="none" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

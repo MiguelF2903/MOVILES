@@ -14,7 +14,8 @@ data class Usuario(
 data class Categoria(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
-    val icono: String
+    val icono: String,
+    val color: String // Hex color string, e.g., "#FF0000"
 )
 
 @Entity(tableName = "transacciones")

@@ -93,4 +93,21 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
         formCategoriaId.value = ""
         formTipo.value = "Gasto"
     }
+
+    fun seedCategorias() {
+        viewModelScope.launch {
+            val list = listOf(
+                Categoria(nombre = "Comida", icono = "restaurant", color = "#FF5722"),
+                Categoria(nombre = "Transporte", icono = "directions_bus", color = "#2196F3"),
+                Categoria(nombre = "Hogar", icono = "home", color = "#4CAF50"),
+                Categoria(nombre = "Compras", icono = "shopping_cart", color = "#9C27B0"),
+                Categoria(nombre = "Salud", icono = "medical_services", color = "#E91E63"),
+                Categoria(nombre = "Facturas", icono = "receipt", color = "#F44336"),
+                Categoria(nombre = "Cine", icono = "movie", color = "#FF9800"),
+                Categoria(nombre = "Viajes", icono = "flight", color = "#00BCD4"),
+                Categoria(nombre = "Ingresos", icono = "attach_money", color = "#3F51B5")
+            )
+            list.forEach { repository.insertCategoria(it) }
+        }
+    }
 }
