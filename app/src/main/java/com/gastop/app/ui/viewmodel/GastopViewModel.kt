@@ -1,53 +1,81 @@
 package com.gastop.app.ui.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
 import com.gastop.app.data.model.Usuario
 import com.gastop.app.data.repository.GastopRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
-data class GastopUiState(
-    val usuario: Usuario? = null,
-    val transacciones: List<Transaccion> = emptyList(),
-    val categorias: List<Categoria> = emptyList(),
-    val presupuestoMensual: Double = 0.0,
-    val balanceTotal: Double = 0.0,
-    val totalGastos: Double = 0.0
-)
 
 class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
 
-    val uiState: StateFlow<GastopUiState> = combine(
-        repository.usuario,
-        repository.transacciones,
-        repository.categorias
-    ) { usuario, transacciones, categorias ->
+    // --- LiveData desde Room (observables) ---
+    val usuario: LiveData<Usuario?> = repository.usuario.asLiveData()
+    val transacciones: LiveData<List<Transaccion>> = repository.transacciones.asLiveData()
+    val categorias: LiveData<List<Categoria>> = repository.categorias.asLiveData()
+
+    // --- Campos calculados con MediatorLiveData ---
+    val balanceTotal: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(transacciones) { lista -> value = calcularBalance(lista) }
+    }
+
+    val totalGastos: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(transacciones) { lista ->
+            value = lista.filter { it.tipo == "Gasto" }.sumOf { it.monto }
+        }
+    }
+
+    val presupuestoMensual: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(usuario) { u -> value = u?.presupuestoMensual ?: 0.0 }
+    }
+
+    val excedePresupuesto: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(totalGastos) { gastos ->
+            value = gastos > (presupuestoMensual.value ?: 0.0)
+        }
+        addSource(presupuestoMensual) { presupuesto ->
+            value = (totalGastos.value ?: 0.0) > presupuesto
+        }
+    }
+
+    // --- Campos del formulario para AddMovement (two-way DataBinding) ---
+    val formMonto = MutableLiveData("")
+    val formConcepto = MutableLiveData("")
+    val formTipo = MutableLiveData("Gasto")
+    val formCategoriaId = MutableLiveData("")
+
+    // Validación reactiva del formulario
+    val formValido: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(formMonto) { checkFormValidity() }
+        addSource(formCategoriaId) { checkFormValidity() }
+    }
+
+    private fun checkFormValidity() {
+        val monto = formMonto.value?.toDoubleOrNull() ?: 0.0
+        val catId = formCategoriaId.value?.toIntOrNull()
+        formValido.value = monto > 0 && catId != null
+    }
+
+    private fun calcularBalance(transacciones: List<Transaccion>): Double {
         val ingresos = transacciones.filter { it.tipo == "Ingreso" }.sumOf { it.monto }
         val gastos = transacciones.filter { it.tipo == "Gasto" }.sumOf { it.monto }
-        val presupuesto = usuario?.presupuestoMensual ?: 0.0
-        
-        GastopUiState(
-            usuario = usuario,
-            transacciones = transacciones,
-            categorias = categorias,
-            presupuestoMensual = presupuesto,
-            balanceTotal = ingresos - gastos,
-            totalGastos = gastos
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = GastopUiState()
-    )
+        return ingresos - gastos
+    }
 
-    fun addTransaccion(monto: Double, concepto: String, tipo: String, categoriaId: Int) {
+    // --- Acciones ---
+    fun addTransaccion() {
+        val monto = formMonto.value?.toDoubleOrNull() ?: return
+        val concepto = formConcepto.value ?: ""
+        val tipo = formTipo.value ?: "Gasto"
+        val categoriaId = formCategoriaId.value?.toIntOrNull() ?: return
+
         if (monto <= 0) return
+
         viewModelScope.launch {
             repository.insertTransaccion(
                 Transaccion(
@@ -59,5 +87,10 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
                 )
             )
         }
+        // Limpiar formulario
+        formMonto.value = ""
+        formConcepto.value = ""
+        formCategoriaId.value = ""
+        formTipo.value = "Gasto"
     }
 }
