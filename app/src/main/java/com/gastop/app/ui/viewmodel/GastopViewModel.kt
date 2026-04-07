@@ -4,44 +4,39 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
 import com.gastop.app.data.model.TransaccionConCategoria
-import com.gastop.app.data.model.Usuario
-import com.gastop.app.data.repository.GastopRepository
-import kotlinx.coroutines.launch
 
-class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
+class GastopViewModel : ViewModel() {
 
-    // --- LiveData desde Room (observables) ---
-    val usuario: LiveData<Usuario?> = repository.usuario.asLiveData()
-    val transacciones: LiveData<List<Transaccion>> = repository.transacciones.asLiveData()
-    val transaccionesConCategoria: LiveData<List<TransaccionConCategoria>> = repository.transaccionesConCategoria.asLiveData()
-    val categorias: LiveData<List<Categoria>> = repository.categorias.asLiveData()
+    // --- Contador auto-incremental para IDs ---
+    private var nextTransaccionId = 1
+
+    // --- Datos en memoria ---
+    private val _transacciones = MutableLiveData<MutableList<Transaccion>>(mutableListOf())
+    val transacciones: LiveData<MutableList<Transaccion>> = _transacciones
+
+    private val _categorias = MutableLiveData<List<Categoria>>()
+    val categorias: LiveData<List<Categoria>> = _categorias
+
+    private val _transaccionesConCategoria = MutableLiveData<List<TransaccionConCategoria>>(emptyList())
+    val transaccionesConCategoria: LiveData<List<TransaccionConCategoria>> = _transaccionesConCategoria
 
     // --- Campos calculados con MediatorLiveData ---
     val balanceTotal: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
-        addSource(transacciones) { lista -> value = calcularBalance(lista) }
+        addSource(_transacciones) { lista -> value = calcularBalance(lista) }
     }
 
     val totalGastos: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
-        addSource(transacciones) { lista ->
+        addSource(_transacciones) { lista ->
             value = lista.filter { it.tipo == "Gasto" }.sumOf { it.monto }
         }
     }
 
-    val presupuestoMensual: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
-        addSource(usuario) { u -> value = u?.presupuestoMensual ?: 0.0 }
-    }
-
-    val excedePresupuesto: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
-        addSource(totalGastos) { gastos ->
-            value = gastos > (presupuestoMensual.value ?: 0.0)
-        }
-        addSource(presupuestoMensual) { presupuesto ->
-            value = (totalGastos.value ?: 0.0) > presupuesto
+    val totalIngresos: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.filter { it.tipo == "Ingreso" }.sumOf { it.monto }
         }
     }
 
@@ -55,6 +50,25 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
     val formValido: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(formMonto) { checkFormValidity() }
         addSource(formCategoriaId) { checkFormValidity() }
+    }
+
+    init {
+        inicializarCategorias()
+    }
+
+    private fun inicializarCategorias() {
+        val lista = listOf(
+            Categoria(id = 1, nombre = "Comida", icono = "restaurant", color = "#FF5722"),
+            Categoria(id = 2, nombre = "Transporte", icono = "directions_bus", color = "#2196F3"),
+            Categoria(id = 3, nombre = "Hogar", icono = "home", color = "#4CAF50"),
+            Categoria(id = 4, nombre = "Compras", icono = "shopping_cart", color = "#9C27B0"),
+            Categoria(id = 5, nombre = "Salud", icono = "medical_services", color = "#E91E63"),
+            Categoria(id = 6, nombre = "Facturas", icono = "receipt", color = "#F44336"),
+            Categoria(id = 7, nombre = "Cine", icono = "movie", color = "#FF9800"),
+            Categoria(id = 8, nombre = "Viajes", icono = "flight", color = "#00BCD4"),
+            Categoria(id = 9, nombre = "Ingresos", icono = "attach_money", color = "#3F51B5")
+        )
+        _categorias.value = lista
     }
 
     private fun checkFormValidity() {
@@ -78,17 +92,22 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
 
         if (monto <= 0) return
 
-        viewModelScope.launch {
-            repository.insertTransaccion(
-                Transaccion(
-                    monto = monto,
-                    concepto = concepto,
-                    fecha = System.currentTimeMillis(),
-                    tipo = tipo,
-                    categoriaId = categoriaId
-                )
-            )
-        }
+        val nuevaTransaccion = Transaccion(
+            id = nextTransaccionId++,
+            monto = monto,
+            concepto = concepto,
+            fecha = System.currentTimeMillis(),
+            tipo = tipo,
+            categoriaId = categoriaId
+        )
+
+        val listaActual = _transacciones.value ?: mutableListOf()
+        listaActual.add(0, nuevaTransaccion) // Insertar al principio (más reciente primero)
+        _transacciones.value = listaActual
+
+        // Actualizar transacciones con categoría
+        actualizarTransaccionesConCategoria()
+
         // Limpiar formulario
         formMonto.value = ""
         formConcepto.value = ""
@@ -96,20 +115,23 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
         formTipo.value = "Gasto"
     }
 
-    fun seedCategorias() {
-        viewModelScope.launch {
-            val list = listOf(
-                Categoria(nombre = "Comida", icono = "restaurant", color = "#FF5722"),
-                Categoria(nombre = "Transporte", icono = "directions_bus", color = "#2196F3"),
-                Categoria(nombre = "Hogar", icono = "home", color = "#4CAF50"),
-                Categoria(nombre = "Compras", icono = "shopping_cart", color = "#9C27B0"),
-                Categoria(nombre = "Salud", icono = "medical_services", color = "#E91E63"),
-                Categoria(nombre = "Facturas", icono = "receipt", color = "#F44336"),
-                Categoria(nombre = "Cine", icono = "movie", color = "#FF9800"),
-                Categoria(nombre = "Viajes", icono = "flight", color = "#00BCD4"),
-                Categoria(nombre = "Ingresos", icono = "attach_money", color = "#3F51B5")
+    fun deleteTransaccion(transaccion: Transaccion) {
+        val listaActual = _transacciones.value ?: mutableListOf()
+        listaActual.removeAll { it.id == transaccion.id }
+        _transacciones.value = listaActual
+        actualizarTransaccionesConCategoria()
+    }
+
+    private fun actualizarTransaccionesConCategoria() {
+        val trans = _transacciones.value ?: emptyList()
+        val cats = _categorias.value ?: emptyList()
+        val catMap = cats.associateBy { it.id }
+
+        _transaccionesConCategoria.value = trans.map { t ->
+            TransaccionConCategoria(
+                transaccion = t,
+                categoria = catMap[t.categoriaId]
             )
-            list.forEach { repository.insertCategoria(it) }
         }
     }
 }

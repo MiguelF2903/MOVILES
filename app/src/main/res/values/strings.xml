@@ -6,7 +6,7 @@
     <string name="nav_stats">Estadísticas</string>
     <string name="nav_profile">Perfil</string>
     <string name="balance_total">Balance Total</string>
-    <string name="presupuesto_mensual">Presupuesto Mensual: $%1$.2f</string>
+    <string name="total_ingresos">Total Ingresos: $%1$.2f</string>
     <string name="total_gastos">Total Gastos: $%1$.2f</string>
     <string name="historial_transacciones">Historial de Transacciones</string>
     <string name="registrar_transaccion">Registrar Transacción</string>
@@ -14,8 +14,7 @@
     <string name="tipo_ingreso">Ingreso</string>
     <string name="monto_hint">Monto (Solo positivos)</string>
     <string name="concepto_hint">Concepto</string>
-    <string name="categoria_hint">Categoría (Selecciona una)</string>
-    <string name="escanear_recibo">Escanear Recibo (OCR)</string>
+    <string name="categoria_hint">Categoría</string>
     <string name="guardar_transaccion">Guardar Transacción</string>
     <string name="wallet_placeholder">Billetera — Próximamente</string>
     <string name="stats_placeholder">Estadísticas — Próximamente</string>

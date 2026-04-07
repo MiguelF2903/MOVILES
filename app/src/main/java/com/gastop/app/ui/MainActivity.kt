@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.gastop.app.R
-import com.gastop.app.data.local.GastopDatabase
-import com.gastop.app.data.repository.GastopRepository
 import com.gastop.app.databinding.ActivityMainBinding
 import com.gastop.app.ui.viewmodel.GastopViewModel
 
@@ -23,11 +21,8 @@ class MainActivity : AppCompatActivity() {
             DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
 
-        // Inicializar ViewModel con Factory
-        val database = GastopDatabase.getDatabase(applicationContext)
-        val repository = GastopRepository(database.gastopDao())
-        val factory = GastopViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory)[GastopViewModel::class.java]
+        // Inicializar ViewModel sin Factory (ya no necesita parámetros)
+        viewModel = ViewModelProvider(this)[GastopViewModel::class.java]
 
         // Configurar Navigation con BottomNavigationView
         val navHostFragment = supportFragmentManager

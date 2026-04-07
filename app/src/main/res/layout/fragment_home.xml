@@ -32,60 +32,53 @@
                 android:textStyle="bold" />
 
             <!-- Balance Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                app:cardElevation="4dp"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:cardBackgroundColor="@color/white">
+                android:background="@color/white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="24dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:padding="24dp">
+                    android:text="@string/balance_total"
+                    android:textColor="@color/gray"
+                    android:textSize="18sp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/balance_total"
-                        android:textColor="@color/gray"
-                        android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/tvBalanceTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary"
+                    tools:text="$0.00" />
 
-                    <TextView
-                        android:id="@+id/tvBalanceTotal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="32sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary"
-                        tools:text="$0.00" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="8dp" />
+                <TextView
+                    android:id="@+id/tvTotalIngresos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/primary"
+                    tools:text="Total Ingresos: $0.00" />
 
-                    <TextView
-                        android:id="@+id/tvPresupuesto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        tools:text="Presupuesto Mensual: $0.00" />
+                <TextView
+                    android:id="@+id/tvTotalGastos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/dark_gray"
+                    tools:text="Total Gastos: $0.00" />
 
-                    <TextView
-                        android:id="@+id/tvTotalGastos"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:textColor="@color/dark_gray"
-                        tools:text="Total Gastos: $0.00" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <!-- Título historial -->
             <TextView

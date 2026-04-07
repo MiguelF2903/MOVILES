@@ -40,28 +40,17 @@ class HomeFragment : Fragment() {
 
         // Observar balance total
         viewModel.balanceTotal.observe(viewLifecycleOwner) { balance ->
-            val exceede = viewModel.excedePresupuesto.value == true
-            val color = if (exceede) R.color.error else R.color.primary
             binding.tvBalanceTotal.text = String.format("$%.2f", balance)
-            binding.tvBalanceTotal.setTextColor(ContextCompat.getColor(requireContext(), color))
-        }
-
-        // Observar excede presupuesto para actualizar colores
-        viewModel.excedePresupuesto.observe(viewLifecycleOwner) { exceede ->
-            val color = if (exceede) R.color.error else R.color.primary
-            binding.tvBalanceTotal.setTextColor(ContextCompat.getColor(requireContext(), color))
-            val gastoColor = if (exceede) R.color.error else R.color.dark_gray
-            binding.tvTotalGastos.setTextColor(ContextCompat.getColor(requireContext(), gastoColor))
-        }
-
-        // Observar presupuesto
-        viewModel.presupuestoMensual.observe(viewLifecycleOwner) { presupuesto ->
-            binding.tvPresupuesto.text = String.format("Presupuesto Mensual: $%.2f", presupuesto)
         }
 
         // Observar total gastos
         viewModel.totalGastos.observe(viewLifecycleOwner) { gastos ->
             binding.tvTotalGastos.text = String.format("Total Gastos: $%.2f", gastos)
+        }
+
+        // Observar total ingresos
+        viewModel.totalIngresos.observe(viewLifecycleOwner) { ingresos ->
+            binding.tvTotalIngresos.text = String.format("Total Ingresos: $%.2f", ingresos)
         }
 
         // Observar lista de transacciones con categoría y poblar LinearLayout
@@ -100,13 +89,13 @@ class HomeFragment : Fragment() {
             if (cat != null) {
                 itemBinding.tvCategoriaLabel.text = cat.nombre
                 itemBinding.tvCategoriaLabel.visibility = View.VISIBLE
-                
+
                 val catColor = try {
                     Color.parseColor(cat.color)
                 } catch (e: Exception) {
                     ContextCompat.getColor(requireContext(), R.color.gray)
                 }
-                
+
                 val drawable = GradientDrawable()
                 drawable.cornerRadius = 12f * resources.displayMetrics.density
                 drawable.setColor(catColor)

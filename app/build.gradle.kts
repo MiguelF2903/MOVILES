@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.ksp)
 }
 
 android {
@@ -40,7 +39,6 @@ android {
     }
     buildFeatures {
         dataBinding = true
-        viewBinding = true
     }
 }
 
@@ -51,7 +49,6 @@ dependencies {
     // AppCompat + Material
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
 
     // Lifecycle (ViewModel + LiveData)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -64,11 +61,6 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-
-    // Room
-    implementation("androidx.room:room-runtime:2.7.0-alpha13")
-    implementation("androidx.room:room-ktx:2.7.0-alpha13")
-    ksp("androidx.room:room-compiler:2.7.0-alpha13")
 
     // Testing
     testImplementation(libs.junit)

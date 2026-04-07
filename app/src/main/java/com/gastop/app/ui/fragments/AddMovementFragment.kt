@@ -1,16 +1,13 @@
 package com.gastop.app.ui.fragments
 
-import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -26,6 +23,8 @@ class AddMovementFragment : Fragment() {
     private val viewModel: GastopViewModel by activityViewModels()
     private var _binding: FragmentAddMovementBinding? = null
     private val binding get() = _binding!!
+
+    private var listaCategorias: List<Categoria> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,20 +43,25 @@ class AddMovementFragment : Fragment() {
         binding.etMonto.addTextChangedListener(simpleWatcher { viewModel.formMonto.value = it })
         binding.etConcepto.addTextChangedListener(simpleWatcher { viewModel.formConcepto.value = it })
 
-        // Configurar selector de categorías
+        // Configurar Spinner de categorías
         viewModel.categorias.observe(viewLifecycleOwner) { categorias ->
-            if (categorias.isEmpty()) {
-                viewModel.seedCategorias()
-            } else {
-                val adapter = CategoriaAdapter(requireContext(), categorias)
-                binding.actvCategoria.setAdapter(adapter)
-            }
+            listaCategorias = categorias
+            val nombres = categorias.map { it.nombre }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, nombres)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerCategoria.adapter = adapter
         }
 
-        binding.actvCategoria.setOnItemClickListener { parent, _, position, _ ->
-            val selectedCategoria = parent.getItemAtPosition(position) as Categoria
-            viewModel.formCategoriaId.value = selectedCategoria.id.toString()
-            binding.actvCategoria.setText(selectedCategoria.nombre, false)
+        binding.spinnerCategoria.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (position < listaCategorias.size) {
+                    viewModel.formCategoriaId.value = listaCategorias[position].id.toString()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                viewModel.formCategoriaId.value = ""
+            }
         }
 
         // Tipo selección
@@ -83,11 +87,6 @@ class AddMovementFragment : Fragment() {
             viewModel.addTransaccion()
             // Navegar de vuelta al Home
             findNavController().navigate(R.id.homeFragment)
-        }
-
-        // OCR placeholder
-        binding.btnEscanear.setOnClickListener {
-            // Placeholder para funcionalidad OCR futura
         }
     }
 
@@ -120,40 +119,5 @@ class AddMovementFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private class CategoriaAdapter(context: Context, categorias: List<Categoria>) :
-        ArrayAdapter<Categoria>(context, R.layout.item_categoria, categorias) {
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            return createViewFromResource(position, convertView, parent)
-        }
-
-        override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-            return createViewFromResource(position, convertView, parent)
-        }
-
-        private fun createViewFromResource(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_categoria, parent, false)
-            val categoria = getItem(position)
-
-            val tvNombre = view.findViewById<TextView>(R.id.tvNombre)
-            val viewColor = view.findViewById<View>(R.id.viewColor)
-
-            tvNombre.text = categoria?.nombre
-            
-            val color = try {
-                Color.parseColor(categoria?.color ?: "#808080")
-            } catch (e: Exception) {
-                Color.GRAY
-            }
-            
-            val drawable = GradientDrawable()
-            drawable.shape = GradientDrawable.OVAL
-            drawable.setColor(color)
-            viewColor.background = drawable
-
-            return view
-        }
     }
 }
