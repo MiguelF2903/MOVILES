@@ -1,5 +1,7 @@
 package com.gastop.app.ui.fragments
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.gastop.app.R
-import com.gastop.app.data.model.Transaccion
+import com.gastop.app.data.model.TransaccionConCategoria
 import com.gastop.app.databinding.FragmentHomeBinding
 import com.gastop.app.databinding.ItemTransaccionBinding
 import com.gastop.app.ui.viewmodel.GastopViewModel
@@ -62,19 +64,22 @@ class HomeFragment : Fragment() {
             binding.tvTotalGastos.text = String.format("Total Gastos: $%.2f", gastos)
         }
 
-        // Observar lista de transacciones y poblar LinearLayout
-        viewModel.transacciones.observe(viewLifecycleOwner) { lista ->
+        // Observar lista de transacciones con categoría y poblar LinearLayout
+        viewModel.transaccionesConCategoria.observe(viewLifecycleOwner) { lista ->
             poblarTransacciones(lista)
         }
     }
 
-    private fun poblarTransacciones(transacciones: List<Transaccion>) {
+    private fun poblarTransacciones(transacciones: List<TransaccionConCategoria>) {
         val container = binding.llTransacciones
         container.removeAllViews()
 
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
-        for (t in transacciones) {
+        for (item in transacciones) {
+            val t = item.transaccion
+            val cat = item.categoria
+
             val itemBinding: ItemTransaccionBinding = DataBindingUtil.inflate(
                 LayoutInflater.from(requireContext()),
                 R.layout.item_transaccion,
@@ -83,13 +88,32 @@ class HomeFragment : Fragment() {
             )
 
             val isGasto = t.tipo == "Gasto"
-            val color = if (isGasto) R.color.error else R.color.primary
+            val colorMonto = if (isGasto) R.color.error else R.color.primary
             val signo = if (isGasto) "-" else "+"
 
             itemBinding.tvConcepto.text = t.concepto
             itemBinding.tvFecha.text = dateFormat.format(Date(t.fecha))
             itemBinding.tvMonto.text = String.format("%s$%.2f", signo, t.monto)
-            itemBinding.tvMonto.setTextColor(ContextCompat.getColor(requireContext(), color))
+            itemBinding.tvMonto.setTextColor(ContextCompat.getColor(requireContext(), colorMonto))
+
+            // Configurar etiqueta de categoría
+            if (cat != null) {
+                itemBinding.tvCategoriaLabel.text = cat.nombre
+                itemBinding.tvCategoriaLabel.visibility = View.VISIBLE
+                
+                val catColor = try {
+                    Color.parseColor(cat.color)
+                } catch (e: Exception) {
+                    ContextCompat.getColor(requireContext(), R.color.gray)
+                }
+                
+                val drawable = GradientDrawable()
+                drawable.cornerRadius = 12f * resources.displayMetrics.density
+                drawable.setColor(catColor)
+                itemBinding.tvCategoriaLabel.background = drawable
+            } else {
+                itemBinding.tvCategoriaLabel.visibility = View.GONE
+            }
 
             container.addView(itemBinding.root)
         }

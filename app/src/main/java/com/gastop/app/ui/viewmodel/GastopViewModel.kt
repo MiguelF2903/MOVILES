@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
+import com.gastop.app.data.model.TransaccionConCategoria
 import com.gastop.app.data.model.Usuario
 import com.gastop.app.data.repository.GastopRepository
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
     // --- LiveData desde Room (observables) ---
     val usuario: LiveData<Usuario?> = repository.usuario.asLiveData()
     val transacciones: LiveData<List<Transaccion>> = repository.transacciones.asLiveData()
+    val transaccionesConCategoria: LiveData<List<TransaccionConCategoria>> = repository.transaccionesConCategoria.asLiveData()
     val categorias: LiveData<List<Categoria>> = repository.categorias.asLiveData()
 
     // --- Campos calculados con MediatorLiveData ---

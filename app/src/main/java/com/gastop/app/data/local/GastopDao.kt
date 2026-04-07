@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
+import com.gastop.app.data.model.TransaccionConCategoria
 import com.gastop.app.data.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
@@ -20,6 +21,13 @@ interface GastopDao {
 
     @Query("SELECT * FROM transacciones ORDER BY fecha DESC")
     fun getAllTransacciones(): Flow<List<Transaccion>>
+
+    @Query("""
+        SELECT * FROM transacciones 
+        LEFT JOIN categorias ON transacciones.categoriaId = categorias.id 
+        ORDER BY fecha DESC
+    """)
+    fun getAllTransaccionesConCategoria(): Flow<List<TransaccionConCategoria>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategoria(categoria: Categoria)

@@ -3,11 +3,13 @@ package com.gastop.app.data.repository
 import com.gastop.app.data.local.GastopDao
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
+import com.gastop.app.data.model.TransaccionConCategoria
 import com.gastop.app.data.model.Usuario
 import kotlinx.coroutines.flow.Flow
 
 class GastopRepository(private val dao: GastopDao) {
     val transacciones: Flow<List<Transaccion>> = dao.getAllTransacciones()
+    val transaccionesConCategoria: Flow<List<TransaccionConCategoria>> = dao.getAllTransaccionesConCategoria()
     val categorias: Flow<List<Categoria>> = dao.getAllCategorias()
     val usuario: Flow<Usuario?> = dao.getUsuario()
 
