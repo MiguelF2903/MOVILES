@@ -40,6 +40,27 @@ class GastopViewModel : ViewModel() {
         }
     }
 
+    // Totales de gasto agrupados por categoria, para la pantalla de estadisticas
+    val gastosPorCategoria: MediatorLiveData<List<Pair<Categoria, Double>>> =
+        MediatorLiveData<List<Pair<Categoria, Double>>>().apply {
+            val recalcular = {
+                val trans = _transacciones.value ?: emptyList()
+                val cats = _categorias.value ?: emptyList()
+                val gastos = trans.filter { it.tipo == "Gasto" }
+                val resultado = cats.mapNotNull { cat ->
+                    val total = gastos.filter { it.categoriaId == cat.id }.sumOf { it.monto }
+                    if (total > 0) Pair(cat, total) else null
+                }.sortedByDescending { it.second }
+                value = resultado
+            }
+            addSource(_transacciones) { recalcular() }
+            addSource(_categorias) { recalcular() }
+        }
+
+    val numeroTransacciones: MediatorLiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(_transacciones) { value = it.size }
+    }
+
     // --- Campos del formulario para AddMovement (two-way DataBinding) ---
     val formMonto = MutableLiveData("")
     val formConcepto = MutableLiveData("")
