@@ -18,6 +18,13 @@
     <string name="guardar_transaccion">Guardar Transacción</string>
     <string name="wallet_placeholder">Billetera — Próximamente</string>
     <string name="stats_placeholder">Estadísticas — Próximamente</string>
+    <string name="stats_title">Resumen de movimientos</string>
+    <string name="stats_ingresos">Ingresos totales</string>
+    <string name="stats_gastos">Gastos totales</string>
+    <string name="stats_balance">Balance</string>
+    <string name="stats_por_categoria">Gastos por categoría</string>
+    <string name="stats_sin_transacciones">Sin transacciones registradas</string>
+    <string name="stats_num_transacciones">Transacciones registradas: %1$d</string>
     <string name="profile_placeholder">Perfil — Próximamente</string>
     <string name="gastop_balance">Gastop Balance</string>
 </resources>
