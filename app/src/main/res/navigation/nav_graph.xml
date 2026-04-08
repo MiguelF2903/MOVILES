@@ -12,12 +12,6 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/walletFragment"
-        android:name="com.gastop.app.ui.fragments.WalletFragment"
-        android:label="@string/nav_wallet"
-        tools:layout="@layout/fragment_wallet" />
-
-    <fragment
         android:id="@+id/addMovementFragment"
         android:name="com.gastop.app.ui.fragments.AddMovementFragment"
         android:label="@string/nav_add"

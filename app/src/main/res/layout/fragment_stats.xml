@@ -126,66 +126,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Bloque 2: Presupuesto -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@color/surface"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_presupuesto_titulo"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="10dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="12dp">
-
-                    <EditText
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/stats_presupuesto_hint"
-                        android:inputType="numberDecimal"
-                        android:text="@={viewModel.formPresupuesto}"
-                        android:layout_marginEnd="8dp" />
-
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/stats_guardar"
-                        android:onClick="@{() -> viewModel.actualizarPresupuesto()}" />
-
-                </LinearLayout>
-
-                <ProgressBar
-                    android:id="@+id/progressPresupuesto"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="16dp"
-                    android:max="100"
-                    android:progress="0"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvPresupuestoResumen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <!-- Bloque 3: Gastos por categoria -->
+            <!-- Bloque 2: Gastos por categoria -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -211,7 +152,7 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Bloque 4: Actividad del mes -->
+            <!-- Bloque 3: Actividad del mes -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

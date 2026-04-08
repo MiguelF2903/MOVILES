@@ -54,25 +54,12 @@ class StatsFragment : Fragment() {
             binding.tvBalanceMes.setTextColor(color)
         }
 
-        // Bloque 2: presupuesto
-        viewModel.presupuestoPorcentaje.observe(viewLifecycleOwner) { pct ->
-            binding.progressPresupuesto.progress = pct ?: 0
-        }
-
-        viewModel.gastosMesActual.observe(viewLifecycleOwner) { gasto ->
-            actualizarResumenPresupuesto(gasto ?: 0.0)
-        }
-
-        viewModel.presupuestoMensual.observe(viewLifecycleOwner) {
-            actualizarResumenPresupuesto(viewModel.gastosMesActual.value ?: 0.0)
-        }
-
-        // Bloque 3: categorias
+        // Bloque 2: categorias
         viewModel.gastosPorCategoriaMes.observe(viewLifecycleOwner) { lista ->
             poblarCategorias(lista)
         }
 
-        // Bloque 4: actividad
+        // Bloque 3: actividad
         viewModel.numTransaccionesMes.observe(viewLifecycleOwner) { n ->
             binding.tvTotalMovimientos.text = getString(R.string.stats_total_movimientos, n ?: 0)
         }
@@ -83,20 +70,6 @@ class StatsFragment : Fragment() {
 
         viewModel.numGastosMes.observe(viewLifecycleOwner) { n ->
             binding.tvNumGastos.text = getString(R.string.stats_num_gastos, n ?: 0)
-        }
-    }
-
-    private fun actualizarResumenPresupuesto(gasto: Double) {
-        val presupuesto = viewModel.presupuestoMensual.value ?: 0.0
-        val restante = presupuesto - gasto
-        if (restante >= 0) {
-            binding.tvPresupuestoResumen.text = getString(R.string.stats_restante, restante)
-            binding.tvPresupuestoResumen.setTextColor(Color.parseColor("#4CAF50"))
-        } else {
-            binding.tvPresupuestoResumen.text = getString(R.string.stats_superado)
-            binding.tvPresupuestoResumen.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.error)
-            )
         }
     }
 
@@ -128,7 +101,6 @@ class StatsFragment : Fragment() {
                 )
             }
 
-            // Fila: punto de color + nombre + importe
             val fila = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
@@ -172,7 +144,6 @@ class StatsFragment : Fragment() {
             fila.addView(nombre)
             fila.addView(importe)
 
-            // ProgressBar relativa al total de gastos del mes
             val porcentaje = if (totalGastos > 0) ((total / totalGastos) * 100).toInt() else 0
             val barra = ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal).apply {
                 layoutParams = LinearLayout.LayoutParams(

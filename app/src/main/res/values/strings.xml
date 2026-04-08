@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Gastop</string>
     <string name="nav_home">Home</string>
-    <string name="nav_wallet">Billetera</string>
     <string name="nav_add">Añadir</string>
     <string name="nav_stats">Estadísticas</string>
     <string name="nav_profile">Perfil</string>
@@ -16,43 +15,38 @@
     <string name="concepto_hint">Concepto</string>
     <string name="categoria_hint">Categoría</string>
     <string name="guardar_transaccion">Guardar Transacción</string>
-    <string name="wallet_placeholder">Billetera — Próximamente</string>
-    <string name="stats_placeholder">Estadísticas — Próximamente</string>
+    <string name="gastop_balance">Gastop Balance</string>
+
+    <!-- Estadísticas -->
     <string name="stats_title">Resumen de movimientos</string>
-    <string name="stats_ingresos">Ingresos totales</string>
-    <string name="stats_gastos">Gastos totales</string>
-    <string name="stats_balance">Balance</string>
-    <string name="stats_por_categoria">Gastos por categoría</string>
-    <string name="stats_sin_transacciones">Sin transacciones registradas</string>
-    <string name="stats_num_transacciones">Transacciones registradas: %1$d</string>
     <string name="stats_mes_actual">Mes actual</string>
     <string name="stats_balance_mes">Balance del mes</string>
     <string name="stats_ingresos_label">Ingresos</string>
     <string name="stats_gastos_label">Gastos</string>
-    <string name="stats_presupuesto_titulo">Presupuesto mensual</string>
-    <string name="stats_presupuesto_hint">Importe (€)</string>
-    <string name="stats_guardar">Guardar</string>
-    <string name="stats_restante">Te quedan %.2f €</string>
-    <string name="stats_superado">Has superado el presupuesto</string>
+    <string name="stats_balance">Balance</string>
+    <string name="stats_por_categoria">Gastos por categoría</string>
+    <string name="stats_sin_transacciones">Sin transacciones registradas</string>
     <string name="stats_actividad">Actividad del mes</string>
     <string name="stats_total_movimientos">Total movimientos: %1$d</string>
     <string name="stats_num_ingresos">Ingresos: %1$d</string>
     <string name="stats_num_gastos">Gastos: %1$d</string>
-    <string name="profile_placeholder">Perfil — Próximamente</string>
-    <string name="gastop_balance">Gastop Balance</string>
-
-    <!-- Wallet -->
-    <string name="wallet_resumen_titulo">Resumen financiero</string>
-    <string name="wallet_ingresos">Total ingresos</string>
-    <string name="wallet_gastos">Total gastos</string>
-    <string name="wallet_presupuesto_titulo">Presupuesto mensual</string>
-    <string name="wallet_presupuesto_actual">Presupuesto actual: %1$.2f €</string>
 
     <!-- Perfil -->
+    <string name="profile_presupuesto_titulo">Presupuesto mensual</string>
+    <string name="profile_presupuesto_hint">Nuevo presupuesto (€)</string>
+    <string name="profile_presupuesto_actual">Presupuesto actual: %1$.2f €</string>
+    <string name="profile_guardar_presupuesto">Guardar presupuesto</string>
+    <string name="profile_restante">Te quedan %.2f €</string>
+    <string name="profile_superado">Has superado el presupuesto</string>
     <string name="profile_resumen_titulo">Resumen de actividad</string>
     <string name="profile_total_transacciones">Total transacciones</string>
     <string name="profile_transacciones_mes">Transacciones este mes</string>
     <string name="profile_categoria_top">Categoría con más gasto</string>
-    <string name="profile_balance_global">Balance global</string>
-
+    <string name="profile_gasto_medio">Gasto medio por operación</string>
+    <string name="profile_cuenta_titulo">Datos de la cuenta</string>
+    <string name="profile_moneda">Moneda</string>
+    <string name="profile_moneda_valor">EUR (€)</string>
+    <string name="profile_miembro_desde">Miembro desde</string>
+    <string name="profile_version">Versión de la app</string>
+    <string name="profile_version_valor">1.0</string>
 </resources>
