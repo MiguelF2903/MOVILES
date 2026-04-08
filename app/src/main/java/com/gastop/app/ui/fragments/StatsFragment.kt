@@ -36,6 +36,11 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.numeroTransacciones.observe(viewLifecycleOwner) { n ->
+            binding.tvNumTransacciones.text =
+                getString(R.string.stats_num_transacciones, n)
+        }
+
         viewModel.gastosPorCategoria.observe(viewLifecycleOwner) { lista ->
             poblarCategorias(lista)
         }
