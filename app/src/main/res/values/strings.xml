@@ -46,7 +46,7 @@
     <string name="wallet_ingresos">Total ingresos</string>
     <string name="wallet_gastos">Total gastos</string>
     <string name="wallet_presupuesto_titulo">Presupuesto mensual</string>
-    <string name="wallet_presupuesto_actual">Presupuesto actual: $%.2f</string>
+    <string name="wallet_presupuesto_actual">Presupuesto actual: %1$.2f €</string>
 
     <!-- Perfil -->
     <string name="profile_resumen_titulo">Resumen de actividad</string>

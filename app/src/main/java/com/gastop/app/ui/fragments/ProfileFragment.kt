@@ -33,24 +33,25 @@ class ProfileFragment : Fragment() {
 
         // Total transacciones históricas
         viewModel.numeroTransacciones.observe(viewLifecycleOwner) { total ->
-            binding.tvProfileNumTransacciones.text = total.toString()
+            binding.tvProfileNumTransacciones.text = (total ?: 0).toString()
         }
 
         // Transacciones del mes actual
         viewModel.numTransaccionesMes.observe(viewLifecycleOwner) { totalMes ->
-            binding.tvProfileTransMes.text = totalMes.toString()
+            binding.tvProfileTransMes.text = (totalMes ?: 0).toString()
         }
 
         // Categoría con más gasto (top 1 de gastosPorCategoria)
         viewModel.gastosPorCategoria.observe(viewLifecycleOwner) { lista ->
-            val top = lista.firstOrNull()
+            val top = lista?.firstOrNull()
             binding.tvProfileCategoriaTop.text = top?.first?.nombre ?: "—"
         }
 
         // Balance global con color condicional
         viewModel.balanceTotal.observe(viewLifecycleOwner) { balance ->
-            binding.tvProfileBalanceGlobal.text = String.format("$%.2f", balance)
-            val color = if (balance < 0) R.color.error else R.color.primary
+            val balanceVal = balance ?: 0.0
+            binding.tvProfileBalanceGlobal.text = String.format("$%.2f", balanceVal)
+            val color = if (balanceVal < 0) R.color.error else R.color.primary
             binding.tvProfileBalanceGlobal.setTextColor(
                 ContextCompat.getColor(requireContext(), color)
             )

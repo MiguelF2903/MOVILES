@@ -32,15 +32,16 @@ class WalletFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.totalIngresos.observe(viewLifecycleOwner) { ingresos ->
-            binding.tvWalletIngresos.text = String.format("+$%.2f", ingresos)
+            binding.tvWalletIngresos.text = String.format("+$%.2f", ingresos ?: 0.0)
         }
 
         viewModel.totalGastos.observe(viewLifecycleOwner) { gastos ->
-            binding.tvWalletGastos.text = String.format("-$%.2f", gastos)
+            binding.tvWalletGastos.text = String.format("-$%.2f", gastos ?: 0.0)
         }
 
         viewModel.balanceTotal.observe(viewLifecycleOwner) { balance ->
-            binding.tvWalletBalance.text = String.format("$%.2f", balance)
+            val balanceVal = balance ?: 0.0
+            binding.tvWalletBalance.text = String.format("$%.2f", balanceVal)
             val excede = (viewModel.totalGastos.value ?: 0.0) > (viewModel.presupuestoMensual.value ?: 0.0)
             val color = if (excede) R.color.error else R.color.primary
             binding.tvWalletBalance.setTextColor(ContextCompat.getColor(requireContext(), color))
@@ -48,7 +49,7 @@ class WalletFragment : Fragment() {
 
         viewModel.presupuestoMensual.observe(viewLifecycleOwner) { presupuesto ->
             binding.tvPresupuestoActual.text =
-                getString(R.string.wallet_presupuesto_actual, presupuesto)
+                getString(R.string.wallet_presupuesto_actual, presupuesto ?: 0.0)
         }
     }
 
