@@ -25,6 +25,19 @@
     <string name="stats_por_categoria">Gastos por categoría</string>
     <string name="stats_sin_transacciones">Sin transacciones registradas</string>
     <string name="stats_num_transacciones">Transacciones registradas: %1$d</string>
+    <string name="stats_mes_actual">Mes actual</string>
+    <string name="stats_balance_mes">Balance del mes</string>
+    <string name="stats_ingresos_label">Ingresos</string>
+    <string name="stats_gastos_label">Gastos</string>
+    <string name="stats_presupuesto_titulo">Presupuesto mensual</string>
+    <string name="stats_presupuesto_hint">Importe (€)</string>
+    <string name="stats_guardar">Guardar</string>
+    <string name="stats_restante">Te quedan %.2f €</string>
+    <string name="stats_superado">Has superado el presupuesto</string>
+    <string name="stats_actividad">Actividad del mes</string>
+    <string name="stats_total_movimientos">Total movimientos: %1$d</string>
+    <string name="stats_num_ingresos">Ingresos: %1$d</string>
+    <string name="stats_num_gastos">Gastos: %1$d</string>
     <string name="profile_placeholder">Perfil — Próximamente</string>
     <string name="gastop_balance">Gastop Balance</string>
 </resources>
