@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.gastop.app.data.model.Categoria
 import com.gastop.app.data.model.Transaccion
 import com.gastop.app.data.model.TransaccionConCategoria
+import java.util.Calendar
 
 class GastopViewModel : ViewModel() {
 
@@ -23,7 +24,7 @@ class GastopViewModel : ViewModel() {
     private val _transaccionesConCategoria = MutableLiveData<List<TransaccionConCategoria>>(emptyList())
     val transaccionesConCategoria: LiveData<List<TransaccionConCategoria>> = _transaccionesConCategoria
 
-    // --- Campos calculados con MediatorLiveData ---
+    // --- Totales generales ---
     val balanceTotal: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
         addSource(_transacciones) { lista -> value = calcularBalance(lista) }
     }
@@ -40,18 +41,16 @@ class GastopViewModel : ViewModel() {
         }
     }
 
-    // Totales de gasto agrupados por categoria, para la pantalla de estadisticas
     val gastosPorCategoria: MediatorLiveData<List<Pair<Categoria, Double>>> =
         MediatorLiveData<List<Pair<Categoria, Double>>>().apply {
             val recalcular = {
                 val trans = _transacciones.value ?: emptyList()
                 val cats = _categorias.value ?: emptyList()
                 val gastos = trans.filter { it.tipo == "Gasto" }
-                val resultado = cats.mapNotNull { cat ->
+                value = cats.mapNotNull { cat ->
                     val total = gastos.filter { it.categoriaId == cat.id }.sumOf { it.monto }
                     if (total > 0) Pair(cat, total) else null
                 }.sortedByDescending { it.second }
-                value = resultado
             }
             addSource(_transacciones) { recalcular() }
             addSource(_categorias) { recalcular() }
@@ -61,13 +60,80 @@ class GastopViewModel : ViewModel() {
         addSource(_transacciones) { value = it.size }
     }
 
+    // --- Estadisticas del mes actual ---
+
+    val presupuestoMensual = MutableLiveData<Double>(1000.0)
+    val formPresupuesto = MutableLiveData("1000")
+
+    val gastosMesActual: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.filter { it.tipo == "Gasto" && esMesActual(it.fecha) }.sumOf { it.monto }
+        }
+    }
+
+    val ingresosMesActual: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.filter { it.tipo == "Ingreso" && esMesActual(it.fecha) }.sumOf { it.monto }
+        }
+    }
+
+    val balanceMesActual: MediatorLiveData<Double> = MediatorLiveData<Double>().apply {
+        fun recalc() {
+            value = (ingresosMesActual.value ?: 0.0) - (gastosMesActual.value ?: 0.0)
+        }
+        addSource(ingresosMesActual) { recalc() }
+        addSource(gastosMesActual) { recalc() }
+    }
+
+    val presupuestoPorcentaje: MediatorLiveData<Int> = MediatorLiveData<Int>().apply {
+        fun recalc() {
+            val gasto = gastosMesActual.value ?: 0.0
+            val presupuesto = presupuestoMensual.value ?: 1.0
+            value = if (presupuesto > 0) ((gasto / presupuesto) * 100).toInt().coerceIn(0, 100) else 0
+        }
+        addSource(gastosMesActual) { recalc() }
+        addSource(presupuestoMensual) { recalc() }
+    }
+
+    val numTransaccionesMes: MediatorLiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.count { esMesActual(it.fecha) }
+        }
+    }
+
+    val numIngresosMes: MediatorLiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.count { it.tipo == "Ingreso" && esMesActual(it.fecha) }
+        }
+    }
+
+    val numGastosMes: MediatorLiveData<Int> = MediatorLiveData<Int>().apply {
+        addSource(_transacciones) { lista ->
+            value = lista.count { it.tipo == "Gasto" && esMesActual(it.fecha) }
+        }
+    }
+
+    val gastosPorCategoriaMes: MediatorLiveData<List<Pair<Categoria, Double>>> =
+        MediatorLiveData<List<Pair<Categoria, Double>>>().apply {
+            val recalcular = {
+                val trans = _transacciones.value ?: emptyList()
+                val cats = _categorias.value ?: emptyList()
+                val gastos = trans.filter { it.tipo == "Gasto" && esMesActual(it.fecha) }
+                value = cats.mapNotNull { cat ->
+                    val total = gastos.filter { it.categoriaId == cat.id }.sumOf { it.monto }
+                    if (total > 0) Pair(cat, total) else null
+                }.sortedByDescending { it.second }
+            }
+            addSource(_transacciones) { recalcular() }
+            addSource(_categorias) { recalcular() }
+        }
+
     // --- Campos del formulario para AddMovement (two-way DataBinding) ---
     val formMonto = MutableLiveData("")
     val formConcepto = MutableLiveData("")
     val formTipo = MutableLiveData("Gasto")
     val formCategoriaId = MutableLiveData("")
 
-    // Validación reactiva del formulario
     val formValido: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(formMonto) { checkFormValidity() }
         addSource(formCategoriaId) { checkFormValidity() }
@@ -75,6 +141,18 @@ class GastopViewModel : ViewModel() {
 
     init {
         inicializarCategorias()
+    }
+
+    private fun esMesActual(fechaMs: Long): Boolean {
+        val ahora = Calendar.getInstance()
+        val trans = Calendar.getInstance().apply { timeInMillis = fechaMs }
+        return trans.get(Calendar.MONTH) == ahora.get(Calendar.MONTH) &&
+                trans.get(Calendar.YEAR) == ahora.get(Calendar.YEAR)
+    }
+
+    fun actualizarPresupuesto() {
+        val valor = formPresupuesto.value?.toDoubleOrNull() ?: return
+        if (valor > 0) presupuestoMensual.value = valor
     }
 
     private fun inicializarCategorias() {
@@ -104,7 +182,6 @@ class GastopViewModel : ViewModel() {
         return ingresos - gastos
     }
 
-    // --- Acciones ---
     fun addTransaccion() {
         val monto = formMonto.value?.toDoubleOrNull() ?: return
         val concepto = formConcepto.value ?: ""
@@ -123,13 +200,11 @@ class GastopViewModel : ViewModel() {
         )
 
         val listaActual = _transacciones.value ?: mutableListOf()
-        listaActual.add(0, nuevaTransaccion) // Insertar al principio (más reciente primero)
+        listaActual.add(0, nuevaTransaccion)
         _transacciones.value = listaActual
 
-        // Actualizar transacciones con categoría
         actualizarTransaccionesConCategoria()
 
-        // Limpiar formulario
         formMonto.value = ""
         formConcepto.value = ""
         formCategoriaId.value = ""
