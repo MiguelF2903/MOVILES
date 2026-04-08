@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -36,13 +37,66 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.numeroTransacciones.observe(viewLifecycleOwner) { n ->
-            binding.tvNumTransacciones.text =
-                getString(R.string.stats_num_transacciones, n)
+        // Bloque 1: balance del mes
+        viewModel.ingresosMesActual.observe(viewLifecycleOwner) { valor ->
+            binding.tvIngresosMes.text = String.format("+ %.2f €", valor ?: 0.0)
         }
 
-        viewModel.gastosPorCategoria.observe(viewLifecycleOwner) { lista ->
+        viewModel.gastosMesActual.observe(viewLifecycleOwner) { valor ->
+            binding.tvGastosMes.text = String.format("- %.2f €", valor ?: 0.0)
+        }
+
+        viewModel.balanceMesActual.observe(viewLifecycleOwner) { valor ->
+            val balance = valor ?: 0.0
+            binding.tvBalanceMes.text = String.format("%.2f €", balance)
+            val color = if (balance >= 0) Color.parseColor("#4CAF50")
+                        else ContextCompat.getColor(requireContext(), R.color.error)
+            binding.tvBalanceMes.setTextColor(color)
+        }
+
+        // Bloque 2: presupuesto
+        viewModel.presupuestoPorcentaje.observe(viewLifecycleOwner) { pct ->
+            binding.progressPresupuesto.progress = pct ?: 0
+        }
+
+        viewModel.gastosMesActual.observe(viewLifecycleOwner) { gasto ->
+            actualizarResumenPresupuesto(gasto ?: 0.0)
+        }
+
+        viewModel.presupuestoMensual.observe(viewLifecycleOwner) {
+            actualizarResumenPresupuesto(viewModel.gastosMesActual.value ?: 0.0)
+        }
+
+        // Bloque 3: categorias
+        viewModel.gastosPorCategoriaMes.observe(viewLifecycleOwner) { lista ->
             poblarCategorias(lista)
+        }
+
+        // Bloque 4: actividad
+        viewModel.numTransaccionesMes.observe(viewLifecycleOwner) { n ->
+            binding.tvTotalMovimientos.text = getString(R.string.stats_total_movimientos, n ?: 0)
+        }
+
+        viewModel.numIngresosMes.observe(viewLifecycleOwner) { n ->
+            binding.tvNumIngresos.text = getString(R.string.stats_num_ingresos, n ?: 0)
+        }
+
+        viewModel.numGastosMes.observe(viewLifecycleOwner) { n ->
+            binding.tvNumGastos.text = getString(R.string.stats_num_gastos, n ?: 0)
+        }
+    }
+
+    private fun actualizarResumenPresupuesto(gasto: Double) {
+        val presupuesto = viewModel.presupuestoMensual.value ?: 0.0
+        val restante = presupuesto - gasto
+        if (restante >= 0) {
+            binding.tvPresupuestoResumen.text = getString(R.string.stats_restante, restante)
+            binding.tvPresupuestoResumen.setTextColor(Color.parseColor("#4CAF50"))
+        } else {
+            binding.tvPresupuestoResumen.text = getString(R.string.stats_superado)
+            binding.tvPresupuestoResumen.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.error)
+            )
         }
     }
 
@@ -57,67 +111,82 @@ class StatsFragment : Fragment() {
 
         binding.tvSinDatos.visibility = View.GONE
 
-        val densidad = resources.displayMetrics.density
+        val totalGastos = lista.sumOf { it.second }
+        val dp = resources.displayMetrics.density
 
         for ((categoria, total) in lista) {
+            val bloque = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { lp -> lp.bottomMargin = (8 * dp).toInt() }
+                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.surface))
+                setPadding(
+                    (12 * dp).toInt(), (10 * dp).toInt(),
+                    (12 * dp).toInt(), (10 * dp).toInt()
+                )
+            }
+
+            // Fila: punto de color + nombre + importe
             val fila = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).also { lp ->
-                    lp.bottomMargin = (8 * densidad).toInt()
-                }
-                setPadding(
-                    (12 * densidad).toInt(),
-                    (10 * densidad).toInt(),
-                    (12 * densidad).toInt(),
-                    (10 * densidad).toInt()
-                )
-                setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.surface))
+                ).also { lp -> lp.bottomMargin = (6 * dp).toInt() }
             }
 
-            // Punto de color de la categoria
-            val punto = TextView(requireContext()).apply {
-                val catColor = try {
-                    Color.parseColor(categoria.color)
-                } catch (e: Exception) {
-                    ContextCompat.getColor(requireContext(), R.color.gray)
-                }
+            val catColor = try {
+                Color.parseColor(categoria.color)
+            } catch (e: Exception) {
+                ContextCompat.getColor(requireContext(), R.color.gray)
+            }
+
+            val punto = View(requireContext()).apply {
                 val circulo = GradientDrawable()
                 circulo.shape = GradientDrawable.OVAL
                 circulo.setColor(catColor)
                 background = circulo
-                val tamano = (14 * densidad).toInt()
-                layoutParams = LinearLayout.LayoutParams(tamano, tamano).also { lp ->
-                    lp.rightMargin = (10 * densidad).toInt()
-                    lp.topMargin = (3 * densidad).toInt()
+                val tam = (12 * dp).toInt()
+                layoutParams = LinearLayout.LayoutParams(tam, tam).also { lp ->
+                    lp.rightMargin = (10 * dp).toInt()
+                    lp.topMargin = (3 * dp).toInt()
                 }
             }
 
-            // Nombre de la categoria
             val nombre = TextView(requireContext()).apply {
                 text = categoria.nombre
-                textSize = 15f
+                textSize = 14f
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
-                layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
 
-            // Total gastado
-            val totalView = TextView(requireContext()).apply {
-                text = String.format("- %.2f €", total)
-                textSize = 15f
+            val importe = TextView(requireContext()).apply {
+                text = String.format("%.2f €", total)
+                textSize = 14f
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.error))
             }
 
             fila.addView(punto)
             fila.addView(nombre)
-            fila.addView(totalView)
-            container.addView(fila)
+            fila.addView(importe)
+
+            // ProgressBar relativa al total de gastos del mes
+            val porcentaje = if (totalGastos > 0) ((total / totalGastos) * 100).toInt() else 0
+            val barra = ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (8 * dp).toInt()
+                )
+                max = 100
+                progress = porcentaje
+                progressDrawable.setColorFilter(catColor, android.graphics.PorterDuff.Mode.SRC_IN)
+            }
+
+            bloque.addView(fila)
+            bloque.addView(barra)
+            container.addView(bloque)
         }
     }
 
