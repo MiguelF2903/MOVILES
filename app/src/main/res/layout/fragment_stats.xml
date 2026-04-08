@@ -2,7 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <import type="java.util.Locale" />
         <variable
             name="viewModel"
             type="com.gastop.app.ui.viewmodel.GastopViewModel" />
@@ -19,99 +18,183 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Cabecera -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/stats_title"
                 android:textColor="@color/primary_dark"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/stats_mes_actual"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Tarjeta de resumen global -->
+            <!-- Bloque 1: Balance del mes -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@color/surface"
                 android:padding="16dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/stats_ingresos"
+                    android:text="@string/stats_balance_mes"
                     android:textColor="@color/dark_gray"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text='@{String.format(Locale.getDefault(), "+ %.2f €", viewModel.totalIngresos)}'
-                    android:textColor="#4CAF50"
-                    android:textSize="18sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stats_gastos"
-                    android:textColor="@color/dark_gray"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text='@{String.format(Locale.getDefault(), "- %.2f €", viewModel.totalGastos)}'
-                    android:textColor="@color/error"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <View
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/gray"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stats_ingresos_label"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvIngresosMes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#4CAF50"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stats_gastos_label"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvGastosMes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/error"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/stats_balance"
+                            android:textColor="@color/gray"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvBalanceMes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Bloque 2: Presupuesto -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/surface"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/stats_balance"
+                    android:text="@string/stats_presupuesto_titulo"
                     android:textColor="@color/dark_gray"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text='@{String.format(Locale.getDefault(), "%.2f €", viewModel.balanceTotal)}'
-                    android:textColor="@color/primary"
-                    android:textSize="22sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="10dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/stats_presupuesto_hint"
+                        android:inputType="numberDecimal"
+                        android:text="@={viewModel.formPresupuesto}"
+                        android:layout_marginEnd="8dp" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stats_guardar"
+                        android:onClick="@{() -> viewModel.actualizarPresupuesto()}" />
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressPresupuesto"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp"
+                    android:max="100"
+                    android:progress="0"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
-                    android:id="@+id/tvNumTransacciones"
+                    android:id="@+id/tvPresupuestoResumen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/gray"
-                    android:textSize="13sp" />
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
-            <!-- Encabezado de la seccion por categoria -->
+            <!-- Bloque 3: Gastos por categoria -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/stats_por_categoria"
                 android:textColor="@color/primary_dark"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Mensaje cuando no hay gastos -->
             <TextView
                 android:id="@+id/tvSinDatos"
                 android:layout_width="wrap_content"
@@ -121,12 +204,54 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
 
-            <!-- Filas de categorias generadas dinamicamente -->
             <LinearLayout
                 android:id="@+id/layoutCategorias"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Bloque 4: Actividad del mes -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/surface"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stats_actividad"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="10dp" />
+
+                <TextView
+                    android:id="@+id/tvTotalMovimientos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvNumIngresos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#4CAF50"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvNumGastos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/error"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
