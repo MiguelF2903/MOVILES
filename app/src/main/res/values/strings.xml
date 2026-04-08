@@ -40,4 +40,19 @@
     <string name="stats_num_gastos">Gastos: %1$d</string>
     <string name="profile_placeholder">Perfil — Próximamente</string>
     <string name="gastop_balance">Gastop Balance</string>
+
+    <!-- Wallet -->
+    <string name="wallet_resumen_titulo">Resumen financiero</string>
+    <string name="wallet_ingresos">Total ingresos</string>
+    <string name="wallet_gastos">Total gastos</string>
+    <string name="wallet_presupuesto_titulo">Presupuesto mensual</string>
+    <string name="wallet_presupuesto_actual">Presupuesto actual: $%.2f</string>
+
+    <!-- Perfil -->
+    <string name="profile_resumen_titulo">Resumen de actividad</string>
+    <string name="profile_total_transacciones">Total transacciones</string>
+    <string name="profile_transacciones_mes">Transacciones este mes</string>
+    <string name="profile_categoria_top">Categoría con más gasto</string>
+    <string name="profile_balance_global">Balance global</string>
+
 </resources>
