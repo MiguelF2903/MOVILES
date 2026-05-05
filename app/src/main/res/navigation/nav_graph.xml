@@ -15,7 +15,12 @@
         android:id="@+id/addMovementFragment"
         android:name="com.gastop.app.ui.fragments.AddMovementFragment"
         android:label="@string/nav_add"
-        tools:layout="@layout/fragment_add_movement" />
+        tools:layout="@layout/fragment_add_movement">
+        <argument
+            android:name="transaccionId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
 
     <fragment
         android:id="@+id/statsFragment"
@@ -28,5 +33,10 @@
         android:name="com.gastop.app.ui.fragments.ProfileFragment"
         android:label="@string/nav_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.gastop.app.ui.fragments.SettingsFragment"
+        android:label="Ajustes" />
 
 </navigation>

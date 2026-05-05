@@ -1,9 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.Gastop" parent="Theme.AppCompat.Light.NoActionBar">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema principal Premium Fintech -->
+    <style name="Theme.Gastop" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Colores principales -->
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/secondary</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#DDE3FF</item>
+        <item name="colorOnPrimaryContainer">@color/primary_dark</item>
+
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!-- Colores de fondo y superficie -->
+        <item name="android:windowBackground">@color/light_background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+
+        <!-- Estilos de componentes -->
+        <item name="cardViewStyle">@style/Widget.Gastop.Card</item>
+        <item name="materialButtonStyle">@style/Widget.Gastop.Button</item>
+
+        <!-- Barra de estado -->
+        <item name="android:statusBarColor">@color/light_background</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Estilo personalizado para Tarjetas -->
+    <style name="Widget.Gastop.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Estilo personalizado para Botones -->
+    <style name="Widget.Gastop.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
     </style>
 </resources>

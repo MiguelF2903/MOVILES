@@ -49,4 +49,14 @@
     <string name="profile_miembro_desde">Miembro desde</string>
     <string name="profile_version">Versión de la app</string>
     <string name="profile_version_valor">1.0</string>
+
+    <string-array name="currency_entries">
+        <item>Euros (€)</item>
+        <item>Dólares ($)</item>
+    </string-array>
+
+    <string-array name="currency_values">
+        <item>EUR</item>
+        <item>USD</item>
+    </string-array>
 </resources>

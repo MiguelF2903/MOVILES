@@ -121,13 +121,44 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
     val formTipo = MutableLiveData("Gasto")
     val formCategoriaId = MutableLiveData("")
 
+    // Preferencia de Moneda
+    val monedaSeleccionada = MutableLiveData("€")
+
     val formValido: MediatorLiveData<Boolean> = MediatorLiveData<Boolean>().apply {
         addSource(formMonto) { checkFormValidity() }
         addSource(formCategoriaId) { checkFormValidity() }
     }
 
+    // ID de la transacción que se está editando (-1 si es nueva)
+    val editingTransaccionId = MutableLiveData<Int>(-1)
+
     init {
         inicializarCategorias()
+        poblarDatosPruebaSiVacio()
+    }
+
+    private fun poblarDatosPruebaSiVacio() {
+        viewModelScope.launch {
+            val transList = repository.transacciones.first()
+            if (transList.isEmpty()) {
+                val ahora = System.currentTimeMillis()
+                val dia = 24 * 60 * 60 * 1000L
+                
+                val datos = listOf(
+                    Transaccion(monto = 1500.0, concepto = "Nómina Mayo", fecha = ahora, tipo = "Ingreso", categoriaId = 9),
+                    Transaccion(monto = 45.50, concepto = "Compra Mercadona", fecha = ahora, tipo = "Gasto", categoriaId = 1),
+                    Transaccion(monto = 12.0, concepto = "Cine - Vengadores", fecha = ahora - (2 * dia), tipo = "Gasto", categoriaId = 7),
+                    Transaccion(monto = 25.0, concepto = "Gasolina", fecha = ahora - (5 * dia), tipo = "Gasto", categoriaId = 2),
+                    Transaccion(monto = 60.0, concepto = "Cena Amigos", fecha = ahora - (10 * dia), tipo = "Gasto", categoriaId = 1),
+                    Transaccion(monto = 30.0, concepto = "Suscripción Netflix", fecha = ahora - (15 * dia), tipo = "Gasto", categoriaId = 4),
+                    Transaccion(monto = 200.0, concepto = "Venta Wallapop", fecha = ahora - (20 * dia), tipo = "Ingreso", categoriaId = 9),
+                    Transaccion(monto = 350.0, concepto = "Alquiler Habitación", fecha = ahora - (45 * dia), tipo = "Gasto", categoriaId = 3),
+                    Transaccion(monto = 15.0, concepto = "Farmacia", fecha = ahora - (100 * dia), tipo = "Gasto", categoriaId = 5)
+                )
+                
+                datos.forEach { repository.insertTransaccion(it) }
+            }
+        }
     }
 
     private fun esMesActual(fechaMs: Long): Boolean {
@@ -140,6 +171,10 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
     fun actualizarPresupuesto() {
         val valor = formPresupuesto.value?.toDoubleOrNull() ?: return
         if (valor > 0) presupuestoMensual.value = valor
+    }
+
+    fun cambiarMoneda(nuevaMoneda: String) {
+        monedaSeleccionada.value = nuevaMoneda
     }
 
     private fun inicializarCategorias() {
@@ -178,25 +213,73 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
         val concepto = formConcepto.value ?: ""
         val tipo = formTipo.value ?: "Gasto"
         val categoriaId = formCategoriaId.value?.toIntOrNull() ?: return
+        val id = editingTransaccionId.value ?: -1
+        
         if (monto <= 0) return
 
         viewModelScope.launch {
-            repository.insertTransaccion(Transaccion(
-                monto = monto,
-                concepto = concepto,
-                fecha = System.currentTimeMillis(),
-                tipo = tipo,
-                categoriaId = categoriaId
-            ))
+            if (id == -1) {
+                // Nueva transacción
+                repository.insertTransaccion(Transaccion(
+                    monto = monto,
+                    concepto = concepto,
+                    fecha = System.currentTimeMillis(),
+                    tipo = tipo,
+                    categoriaId = categoriaId
+                ))
+            } else {
+                // Actualizar existente (manteniendo fecha original)
+                val original = transaccionesConCategoria.value?.find { it.transaccion.id == id }?.transaccion
+                val fecha = original?.fecha ?: System.currentTimeMillis()
+                
+                repository.insertTransaccion(Transaccion(
+                    id = id,
+                    monto = monto,
+                    concepto = concepto,
+                    fecha = fecha,
+                    tipo = tipo,
+                    categoriaId = categoriaId
+                ))
+            }
+            resetForm()
         }
+    }
 
+    fun cargarTransaccionParaEditar(id: Int) {
+        viewModelScope.launch {
+            val todas = transaccionesConCategoria.value ?: return@launch
+            val item = todas.find { it.transaccion.id == id } ?: return@launch
+            val t = item.transaccion
+            
+            editingTransaccionId.value = id
+            formMonto.value = t.monto.toString()
+            formConcepto.value = t.concepto
+            formTipo.value = t.tipo
+            formCategoriaId.value = t.categoriaId.toString()
+        }
+    }
+
+    fun resetForm() {
         formMonto.value = ""
         formConcepto.value = ""
         formCategoriaId.value = ""
         formTipo.value = "Gasto"
+        editingTransaccionId.value = -1
     }
 
     fun deleteTransaccion(transaccion: Transaccion) {
         viewModelScope.launch { repository.deleteTransaccion(transaccion) }
+    }
+
+    fun eliminarTransaccionActual() {
+        val id = editingTransaccionId.value ?: return
+        if (id == -1) return
+        
+        viewModelScope.launch {
+            val todas = transaccionesConCategoria.value ?: return@launch
+            val t = todas.find { it.transaccion.id == id }?.transaccion ?: return@launch
+            repository.deleteTransaccion(t)
+            resetForm()
+        }
     }
 }

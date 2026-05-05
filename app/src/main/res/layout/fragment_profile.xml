@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -8,296 +9,240 @@
             type="com.gastop.app.ui.viewmodel.GastopViewModel" />
     </data>
 
-    <ScrollView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:background="@color/light_background"
-        tools:context=".ui.fragments.ProfileFragment">
+        android:background="@color/light_background">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Título -->
-            <TextView
+            android:background="@android:color/transparent"
+            app:elevation="0dp">
+            <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/primary"
-                android:padding="16dp"
-                android:text="@string/nav_profile"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_height="?attr/actionBarSize">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mi Perfil"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_gravity="center" />
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="16dp" />
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <!-- Bloque 1: Presupuesto mensual -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/surface"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
+                android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_presupuesto_titulo"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvPresupuestoActual"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:textColor="@color/dark_gray"
-                    android:layout_marginBottom="12dp"
-                    tools:text="Presupuesto actual: 1000.00 €" />
-
-                <!-- Barra de progreso -->
-                <ProgressBar
-                    android:id="@+id/progressPresupuesto"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="16dp"
-                    android:max="100"
-                    android:progress="0"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvPresupuestoResumen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Campo para cambiar presupuesto -->
-                <LinearLayout
+                <!-- Bloque 1: Presupuesto Mensual -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_marginBottom="20dp"
+                    app:cardElevation="2dp">
 
-                    <EditText
-                        android:id="@+id/etPresupuesto"
-                        android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="@string/profile_presupuesto_hint"
-                        android:inputType="numberDecimal"
-                        android:padding="12dp"
-                        android:background="@drawable/bg_edittext"
-                        android:layout_marginEnd="8dp"
-                        android:text="@={viewModel.formPresupuesto}" />
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                    <Button
-                        android:id="@+id/btnGuardarPresupuesto"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Presupuesto Mensual"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/tvPresupuestoActual"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cargando..."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp"
+                            android:layout_marginTop="4dp" />
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progressPresupuesto"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginBottom="12dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/primary"
+                            app:trackColor="@color/surface_variant" />
+
+                        <TextView
+                            android:id="@+id/tvPresupuestoResumen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Faltan $0.00"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="20dp" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilPresupuesto"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Nuevo Presupuesto"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:prefixText='@{viewModel.monedaSeleccionada}'
+                            android:layout_marginBottom="12dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPresupuesto"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal"
+                                android:text="@={viewModel.formPresupuesto}" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <Button
+                            android:id="@+id/btnGuardarPresupuesto"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Actualizar Presupuesto"
+                            android:layout_marginBottom="16dp" />
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/surface_variant" android:layout_marginBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Preferencia de Moneda"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggleMoneda"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <Button
+                                android:id="@+id/btnEuro"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="€" />
+
+                            <Button
+                                android:id="@+id/btnDolar"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="$" />
+
+                            <Button
+                                android:id="@+id/btnLibra"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="£" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Bloque 2: Resumen de Actividad -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_guardar_presupuesto"
-                        android:onClick="@{() -> viewModel.actualizarPresupuesto()}" />
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Estadísticas de Uso"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginBottom="16dp" />
+
+                        <include
+                            android:id="@+id/rowTotalTransacciones"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Total Transacciones"}' />
+
+                        <include
+                            android:id="@+id/rowTransaccionesMes"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Movimientos este mes"}' />
+
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/surface_variant" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" />
+
+                        <include
+                            android:id="@+id/rowCategoriaTop"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Categoría con más gasto"}' />
+
+                        <include
+                            android:id="@+id/rowGastoMedio"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Gasto medio"}' />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Bloque 3: Otros -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="40dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <include
+                            android:id="@+id/rowMiembroDesde"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Miembro desde"}' />
+
+                        <include
+                            android:id="@+id/rowVersion"
+                            layout="@layout/view_profile_stat_row"
+                            app:label='@{"Versión de la app"}'
+                            app:value='@{"1.0.0 Premium"}' />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-            <!-- Bloque 2: Resumen de actividad -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@color/surface"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_resumen_titulo"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Total transacciones -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_total_transacciones"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvProfileNumTransacciones"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        tools:text="0" />
-                </LinearLayout>
-
-                <!-- Transacciones este mes -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_transacciones_mes"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvProfileTransMes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        tools:text="0" />
-                </LinearLayout>
-
-                <!-- Separador -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/gray"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- Categoría favorita -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_categoria_top"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvProfileCategoriaTop"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/primary"
-                        android:textSize="14sp"
-                        tools:text="—" />
-                </LinearLayout>
-
-                <!-- Gasto medio -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_gasto_medio"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvProfileGastoMedio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        tools:text="0.00 €" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Bloque 3: Datos de la cuenta -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@color/surface"
-                android:padding="16dp"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/profile_cuenta_titulo"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Moneda -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_moneda"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/profile_moneda_valor"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Miembro desde -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_miembro_desde"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvProfileMiembroDesde"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        tools:text="Abril 2026" />
-                </LinearLayout>
-
-                <!-- Versión -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/profile_version"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/profile_version_valor"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </ScrollView>
-
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

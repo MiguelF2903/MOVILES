@@ -43,68 +43,111 @@ class AddMovementFragment : Fragment() {
         binding.etMonto.addTextChangedListener(simpleWatcher { viewModel.formMonto.value = it })
         binding.etConcepto.addTextChangedListener(simpleWatcher { viewModel.formConcepto.value = it })
 
-        // Configurar Spinner de categorías
+        // Cargar transacción si estamos editando
+        val transId = arguments?.getInt("transaccionId") ?: -1
+        if (transId != -1) {
+            viewModel.cargarTransaccionParaEditar(transId)
+            binding.btnGuardar.text = "Actualizar"
+            binding.tvTitulo.text = "Editar Movimiento"
+            binding.btnEliminar.visibility = View.VISIBLE
+        } else {
+            viewModel.resetForm()
+            binding.btnGuardar.text = "Añadir"
+            binding.tvTitulo.text = "Nuevo Movimiento"
+            binding.btnEliminar.visibility = View.GONE
+        }
+
+        // Configurar Spinner (AutoCompleteTextView) de categorías
         viewModel.categorias.observe(viewLifecycleOwner) { categorias ->
             listaCategorias = categorias
             val nombres = categorias.map { it.nombre }
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, nombres)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerCategoria.adapter = adapter
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
+            binding.spinnerCategoria.setAdapter(adapter)
         }
 
-        binding.spinnerCategoria.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (position < listaCategorias.size) {
-                    viewModel.formCategoriaId.value = listaCategorias[position].id.toString()
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                viewModel.formCategoriaId.value = ""
+        binding.spinnerCategoria.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (position < listaCategorias.size) {
+                viewModel.formCategoriaId.value = listaCategorias[position].id.toString()
             }
         }
 
-        // Tipo selección
-        actualizarBotonesTipo()
-
-        binding.btnGasto.setOnClickListener {
-            viewModel.formTipo.value = "Gasto"
-            actualizarBotonesTipo()
-        }
-
-        binding.btnIngreso.setOnClickListener {
-            viewModel.formTipo.value = "Ingreso"
-            actualizarBotonesTipo()
-        }
-
-        // Observar validez del formulario
+        // Observar validez del formulario para habilitar el botón de guardar
         viewModel.formValido.observe(viewLifecycleOwner) { valido ->
             binding.btnGuardar.isEnabled = valido
+        }
+
+        // --- SINCRONIZACIÓN DE DATOS (IMPORTANTE PARA EDICIÓN) ---
+        
+        // Observar Monto (para cuando se carga al editar)
+        viewModel.formMonto.observe(viewLifecycleOwner) { monto ->
+            if (binding.etMonto.text.toString() != monto) {
+                binding.etMonto.setText(monto)
+            }
+        }
+
+        // Observar Concepto
+        viewModel.formConcepto.observe(viewLifecycleOwner) { concepto ->
+            if (binding.etConcepto.text.toString() != concepto) {
+                binding.etConcepto.setText(concepto)
+            }
+        }
+
+        // Observar Tipo (Gasto/Ingreso) y actualizar el ToggleGroup
+        viewModel.formTipo.observe(viewLifecycleOwner) { tipo ->
+            val buttonId = if (tipo == "Gasto") R.id.btnGasto else R.id.btnIngreso
+            if (binding.toggleButton.checkedButtonId != buttonId) {
+                binding.toggleButton.check(buttonId)
+            }
+        }
+
+        // Observar Categoría para el AutoCompleteTextView
+        viewModel.formCategoriaId.observe(viewLifecycleOwner) { catId ->
+            val categoria = listaCategorias.find { it.id.toString() == catId }
+            if (categoria != null && binding.spinnerCategoria.text.toString() != categoria.nombre) {
+                binding.spinnerCategoria.setText(categoria.nombre, false)
+            }
+        }
+
+        // Observar Moneda para el prefijo del TextInputLayout
+        viewModel.monedaSeleccionada.observe(viewLifecycleOwner) { moneda ->
+            binding.tilMonto.prefixText = moneda
+        }
+
+        // --- LISTENERS DE ACCIÓN ---
+
+        // Selección de Tipo mediante el ToggleGroup
+        binding.toggleButton.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                viewModel.formTipo.value = if (checkedId == R.id.btnGasto) "Gasto" else "Ingreso"
+            }
         }
 
         // Guardar transacción
         binding.btnGuardar.setOnClickListener {
             viewModel.addTransaccion()
-            // Navegar de vuelta al Home
-            findNavController().navigate(R.id.homeFragment)
+            findNavController().popBackStack()
+        }
+
+        // Cancelar
+        binding.btnCancelar.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        // Eliminar
+        binding.btnEliminar.setOnClickListener {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("¿Eliminar?")
+                .setMessage("Esta acción no se puede deshacer.")
+                .setNegativeButton("No", null)
+                .setPositiveButton("Sí, eliminar") { _, _ ->
+                    viewModel.eliminarTransaccionActual()
+                    findNavController().popBackStack()
+                }
+                .show()
         }
     }
 
-    private fun actualizarBotonesTipo() {
-        val esGasto = viewModel.formTipo.value == "Gasto"
 
-        if (esGasto) {
-            binding.btnGasto.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            binding.btnGasto.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            binding.btnIngreso.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.surface))
-            binding.btnIngreso.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
-        } else {
-            binding.btnIngreso.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            binding.btnIngreso.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-            binding.btnGasto.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.surface))
-            binding.btnGasto.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
-        }
-    }
 
     private fun simpleWatcher(onChanged: (String) -> Unit): TextWatcher {
         return object : TextWatcher {

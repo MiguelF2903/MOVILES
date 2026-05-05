@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -39,8 +40,8 @@ class ProfileFragment : Fragment() {
 
         // Presupuesto actual
         viewModel.presupuestoMensual.observe(viewLifecycleOwner) { presupuesto ->
-            binding.tvPresupuestoActual.text =
-                getString(R.string.profile_presupuesto_actual, presupuesto ?: 0.0)
+            val moneda = viewModel.monedaSeleccionada.value ?: "€"
+            binding.tvPresupuestoActual.text = String.format("Presupuesto actual: %s%.2f", moneda, presupuesto ?: 0.0)
             actualizarResumenPresupuesto()
         }
 
@@ -54,22 +55,55 @@ class ProfileFragment : Fragment() {
             actualizarResumenPresupuesto()
         }
 
+        // Botón guardar presupuesto
+        binding.btnGuardarPresupuesto.setOnClickListener {
+            viewModel.actualizarPresupuesto()
+            Toast.makeText(requireContext(), "Presupuesto actualizado correctamente", Toast.LENGTH_SHORT).show()
+        }
+
+        // Selector de moneda
+        viewModel.monedaSeleccionada.observe(viewLifecycleOwner) { moneda ->
+            val checkedId = when (moneda) {
+                "€" -> R.id.btnEuro
+                "$" -> R.id.btnDolar
+                "£" -> R.id.btnLibra
+                else -> R.id.btnEuro
+            }
+            if (binding.toggleMoneda.checkedButtonId != checkedId) {
+                binding.toggleMoneda.check(checkedId)
+            }
+            // Refrescar vistas que dependen de la moneda
+            actualizarResumenPresupuesto()
+        }
+
+        binding.toggleMoneda.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val nuevaMoneda = when (checkedId) {
+                    R.id.btnEuro -> "€"
+                    R.id.btnDolar -> "$"
+                    R.id.btnLibra -> "£"
+                    else -> "€"
+                }
+                viewModel.cambiarMoneda(nuevaMoneda)
+            }
+        }
+
         // --- Tarjeta 2: Resumen de actividad ---
 
         // Total transacciones históricas
         viewModel.numeroTransacciones.observe(viewLifecycleOwner) { total ->
-            binding.tvProfileNumTransacciones.text = (total ?: 0).toString()
+            binding.rowTotalTransacciones.valueText.text = (total ?: 0).toString()
         }
 
         // Transacciones del mes actual
         viewModel.numTransaccionesMes.observe(viewLifecycleOwner) { totalMes ->
-            binding.tvProfileTransMes.text = (totalMes ?: 0).toString()
+            binding.rowTransaccionesMes.valueText.text = (totalMes ?: 0).toString()
         }
 
         // Categoría con más gasto
         viewModel.gastosPorCategoria.observe(viewLifecycleOwner) { lista ->
             val top = lista?.firstOrNull()
-            binding.tvProfileCategoriaTop.text = top?.first?.nombre ?: "—"
+            binding.rowCategoriaTop.valueText.text = top?.first?.nombre ?: "—"
         }
 
         // Gasto medio por transacción
@@ -77,29 +111,29 @@ class ProfileFragment : Fragment() {
             val numTotal = viewModel.numeroTransacciones.value ?: 0
             val gastosVal = gastos ?: 0.0
             val gastoMedio = if (numTotal > 0) gastosVal / numTotal else 0.0
-            binding.tvProfileGastoMedio.text = String.format("%.2f €", gastoMedio)
+            val moneda = viewModel.monedaSeleccionada.value ?: "€"
+            binding.rowGastoMedio.valueText.text = String.format("%s%.2f", moneda, gastoMedio)
         }
 
         // --- Tarjeta 3: Datos de la cuenta ---
 
-        // Fecha de "miembro desde" (usamos la fecha actual como ejemplo)
+        // Fecha de "miembro desde"
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-        binding.tvProfileMiembroDesde.text = dateFormat.format(Date())
+        binding.rowMiembroDesde.valueText.text = dateFormat.format(Date())
     }
 
     private fun actualizarResumenPresupuesto() {
         val gasto = viewModel.gastosMesActual.value ?: 0.0
         val presupuesto = viewModel.presupuestoMensual.value ?: 0.0
         val restante = presupuesto - gasto
+        val moneda = viewModel.monedaSeleccionada.value ?: "€"
 
         if (restante >= 0) {
-            binding.tvPresupuestoResumen.text = getString(R.string.profile_restante, restante)
+            binding.tvPresupuestoResumen.text = String.format("Te quedan %s%.2f para este mes", moneda, restante)
             binding.tvPresupuestoResumen.setTextColor(Color.parseColor("#4CAF50"))
         } else {
-            binding.tvPresupuestoResumen.text = getString(R.string.profile_superado)
-            binding.tvPresupuestoResumen.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.error)
-            )
+            binding.tvPresupuestoResumen.text = "¡Has superado tu presupuesto!"
+            binding.tvPresupuestoResumen.setTextColor(ContextCompat.getColor(requireContext(), R.color.error))
         }
     }
 

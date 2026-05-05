@@ -39,19 +39,31 @@ class StatsFragment : Fragment() {
 
         // Bloque 1: balance del mes
         viewModel.ingresosMesActual.observe(viewLifecycleOwner) { valor ->
-            binding.tvIngresosMes.text = String.format("+ %.2f €", valor ?: 0.0)
+            val moneda = viewModel.monedaSeleccionada.value ?: "€"
+            binding.tvIngresosMes.text = String.format("+ %.2f %s", valor ?: 0.0, moneda)
         }
 
         viewModel.gastosMesActual.observe(viewLifecycleOwner) { valor ->
-            binding.tvGastosMes.text = String.format("- %.2f €", valor ?: 0.0)
+            val moneda = viewModel.monedaSeleccionada.value ?: "€"
+            binding.tvGastosMes.text = String.format("- %.2f %s", valor ?: 0.0, moneda)
         }
 
         viewModel.balanceMesActual.observe(viewLifecycleOwner) { valor ->
             val balance = valor ?: 0.0
-            binding.tvBalanceMes.text = String.format("%.2f €", balance)
+            val moneda = viewModel.monedaSeleccionada.value ?: "€"
+            binding.tvBalanceMes.text = String.format("%.2f %s", balance, moneda)
             val color = if (balance >= 0) Color.parseColor("#4CAF50")
                         else ContextCompat.getColor(requireContext(), R.color.error)
             binding.tvBalanceMes.setTextColor(color)
+        }
+
+        // Observar cambio de moneda para refrescar
+        viewModel.monedaSeleccionada.observe(viewLifecycleOwner) { moneda ->
+            binding.tvIngresosMes.text = String.format("+ %.2f %s", viewModel.ingresosMesActual.value ?: 0.0, moneda)
+            binding.tvGastosMes.text = String.format("- %.2f %s", viewModel.gastosMesActual.value ?: 0.0, moneda)
+            binding.tvBalanceMes.text = String.format("%.2f %s", viewModel.balanceMesActual.value ?: 0.0, moneda)
+            // Forzar repoblado de categorías para actualizar moneda en las barras
+            poblarCategorias(viewModel.gastosPorCategoriaMes.value ?: emptyList())
         }
 
         // Bloque 2: categorias
@@ -130,12 +142,13 @@ class StatsFragment : Fragment() {
             val nombre = TextView(requireContext()).apply {
                 text = categoria.nombre
                 textSize = 14f
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_gray))
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             }
 
             val importe = TextView(requireContext()).apply {
-                text = String.format("%.2f €", total)
+                val moneda = viewModel.monedaSeleccionada.value ?: "€"
+                text = String.format("%.2f %s", total, moneda)
                 textSize = 14f
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.error))
             }
