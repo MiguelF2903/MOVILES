@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GastopDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTransaccion(transaccion: Transaccion)
+    fun insertTransaccion(transaccion: Transaccion): Long
 
     @Delete
     fun deleteTransaccion(transaccion: Transaccion)

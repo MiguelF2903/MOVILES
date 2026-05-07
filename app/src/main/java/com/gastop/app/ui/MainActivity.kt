@@ -36,5 +36,14 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
 
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
+
+        // Ocultar BottomNavigation en LoginFragment
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.loginFragment) {
+                binding.bottomNavigation.visibility = android.view.View.GONE
+            } else {
+                binding.bottomNavigation.visibility = android.view.View.VISIBLE
+            }
+        }
     }
 }

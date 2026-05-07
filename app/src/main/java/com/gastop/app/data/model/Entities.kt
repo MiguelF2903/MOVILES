@@ -18,6 +18,24 @@ data class Categoria(
     val color: String // Hex color string, e.g., "#FF0000"
 )
 
+fun Categoria.toMap(): Map<String, Any?> = mapOf(
+    "id" to id,
+    "nombre" to nombre,
+    "icono" to icono,
+    "color" to color
+)
+
+fun com.google.firebase.firestore.DocumentSnapshot.toCategoria(): Categoria? {
+    return try {
+        Categoria(
+            id = getLong("id")?.toInt() ?: return null,
+            nombre = getString("nombre") ?: "",
+            icono = getString("icono") ?: "",
+            color = getString("color") ?: "#000000"
+        )
+    } catch (e: Exception) { null }
+}
+
 @Entity(tableName = "transacciones")
 data class Transaccion(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -27,3 +45,25 @@ data class Transaccion(
     val tipo: String, // "Gasto" o "Ingreso"
     val categoriaId: Int
 )
+
+fun Transaccion.toMap(): Map<String, Any?> = mapOf(
+    "id" to id,
+    "monto" to monto,
+    "concepto" to concepto,
+    "fecha" to fecha,
+    "tipo" to tipo,
+    "categoriaId" to categoriaId
+)
+
+fun com.google.firebase.firestore.DocumentSnapshot.toTransaccion(): Transaccion? {
+    return try {
+        Transaccion(
+            id = getLong("id")?.toInt() ?: return null,
+            monto = getDouble("monto") ?: 0.0,
+            concepto = getString("concepto") ?: "",
+            fecha = getLong("fecha") ?: 0L,
+            tipo = getString("tipo") ?: "Gasto",
+            categoriaId = getLong("categoriaId")?.toInt() ?: return null
+        )
+    } catch (e: Exception) { null }
+}

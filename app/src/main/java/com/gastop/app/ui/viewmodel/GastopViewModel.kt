@@ -133,6 +133,8 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
     val editingTransaccionId = MutableLiveData<Int>(-1)
 
     init {
+        repository.syncFromFirestore(viewModelScope)
+        repository.syncCategoriasFromFirestore(viewModelScope)
         inicializarCategorias()
         poblarDatosPruebaSiVacio()
     }

@@ -238,6 +238,19 @@
                             app:label='@{"Versión de la app"}'
                             app:value='@{"1.0.0 Premium"}' />
 
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnLogout"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:text="Cerrar Sesión"
+                            android:textColor="@color/error"
+                            app:strokeColor="@color/error"
+                            app:icon="@drawable/ic_logout"
+                            app:iconTint="@color/error"
+                            app:iconGravity="textStart" />
+
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

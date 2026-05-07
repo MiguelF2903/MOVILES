@@ -76,8 +76,14 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.appcheck)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Preferences
     implementation("androidx.preference:preference-ktx:1.2.1")

@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.gastop.app.R
 import com.gastop.app.databinding.FragmentProfileBinding
 import com.gastop.app.ui.viewmodel.GastopViewModel
@@ -120,6 +121,24 @@ class ProfileFragment : Fragment() {
         // Fecha de "miembro desde"
         val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
         binding.rowMiembroDesde.valueText.text = dateFormat.format(Date())
+
+        // --- Botón de Cerrar Sesión ---
+        binding.btnLogout.setOnClickListener {
+            val app = requireActivity().application as com.gastop.app.MyApplication
+            val repository = com.gastop.app.data.repository.AuthRepository(app.auth)
+            val factory = com.gastop.app.ui.viewmodel.AuthViewModelFactory(repository)
+            val authViewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.gastop.app.ui.viewmodel.AuthViewModel::class.java]
+            
+            authViewModel.logout()
+            
+            findNavController().navigate(
+                R.id.loginFragment,
+                null,
+                androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(R.id.nav_graph, true)
+                    .build()
+            )
+        }
     }
 
     private fun actualizarResumenPresupuesto() {
