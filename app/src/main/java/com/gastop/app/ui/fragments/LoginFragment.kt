@@ -15,12 +15,21 @@ import com.gastop.app.data.repository.AuthRepository
 import com.gastop.app.databinding.FragmentLoginBinding
 import com.gastop.app.ui.viewmodel.AuthViewModel
 import com.gastop.app.ui.viewmodel.AuthViewModelFactory
+import com.gastop.app.data.local.GastopDatabase
+import com.gastop.app.data.repository.GastopRepository
+import com.gastop.app.ui.viewmodel.GastopViewModel
+import com.gastop.app.ui.viewmodel.GastopViewModelFactory
+import androidx.fragment.app.activityViewModels
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: AuthViewModel
+    private val gastopViewModel: GastopViewModel by activityViewModels {
+        val db = GastopDatabase.getDatabase(requireActivity().application)
+        GastopViewModelFactory(GastopRepository(db.gastopDao()))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +50,8 @@ class LoginFragment : Fragment() {
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
                 Log.i("Auth", "Sesión activa: ${user.email}")
+                // Re-inicializar sync y categorías para el nuevo usuario
+                gastopViewModel.reiniciarSync()
                 // Navegar a la pantalla principal si el fragmento actual es LoginFragment
                 if (findNavController().currentDestination?.id == R.id.loginFragment) {
                     findNavController().navigate(R.id.action_loginFragment_to_homeFragment)

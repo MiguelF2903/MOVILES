@@ -75,4 +75,10 @@ class GastopRepository(private val dao: GastopDao) {
         }
     }
     suspend fun insertUsuario(usuario: Usuario) = withContext(Dispatchers.IO) { dao.insertUsuario(usuario) }
+
+    suspend fun clearLocalData() = withContext(Dispatchers.IO) {
+        dao.deleteAllTransacciones()
+        // Las categorías NO se borran: son datos genéricos y el ViewModel
+        // no se reinicializa al re-login (activityViewModels persiste en la Activity)
+    }
 }

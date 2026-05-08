@@ -136,32 +136,8 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
         repository.syncFromFirestore(viewModelScope)
         repository.syncCategoriasFromFirestore(viewModelScope)
         inicializarCategorias()
-        poblarDatosPruebaSiVacio()
     }
 
-    private fun poblarDatosPruebaSiVacio() {
-        viewModelScope.launch {
-            val transList = repository.transacciones.first()
-            if (transList.isEmpty()) {
-                val ahora = System.currentTimeMillis()
-                val dia = 24 * 60 * 60 * 1000L
-                
-                val datos = listOf(
-                    Transaccion(monto = 1500.0, concepto = "Nómina Mayo", fecha = ahora, tipo = "Ingreso", categoriaId = 9),
-                    Transaccion(monto = 45.50, concepto = "Compra Mercadona", fecha = ahora, tipo = "Gasto", categoriaId = 1),
-                    Transaccion(monto = 12.0, concepto = "Cine - Vengadores", fecha = ahora - (2 * dia), tipo = "Gasto", categoriaId = 7),
-                    Transaccion(monto = 25.0, concepto = "Gasolina", fecha = ahora - (5 * dia), tipo = "Gasto", categoriaId = 2),
-                    Transaccion(monto = 60.0, concepto = "Cena Amigos", fecha = ahora - (10 * dia), tipo = "Gasto", categoriaId = 1),
-                    Transaccion(monto = 30.0, concepto = "Suscripción Netflix", fecha = ahora - (15 * dia), tipo = "Gasto", categoriaId = 4),
-                    Transaccion(monto = 200.0, concepto = "Venta Wallapop", fecha = ahora - (20 * dia), tipo = "Ingreso", categoriaId = 9),
-                    Transaccion(monto = 350.0, concepto = "Alquiler Habitación", fecha = ahora - (45 * dia), tipo = "Gasto", categoriaId = 3),
-                    Transaccion(monto = 15.0, concepto = "Farmacia", fecha = ahora - (100 * dia), tipo = "Gasto", categoriaId = 5)
-                )
-                
-                datos.forEach { repository.insertTransaccion(it) }
-            }
-        }
-    }
 
     private fun esMesActual(fechaMs: Long): Boolean {
         val ahora = Calendar.getInstance()
@@ -179,7 +155,13 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
         monedaSeleccionada.value = nuevaMoneda
     }
 
-    private fun inicializarCategorias() {
+    fun reiniciarSync() {
+        repository.syncFromFirestore(viewModelScope)
+        repository.syncCategoriasFromFirestore(viewModelScope)
+        inicializarCategorias()
+    }
+
+    fun inicializarCategorias() {
         viewModelScope.launch {
             val catList = repository.categorias.first()
             if (catList.isEmpty()) {
@@ -271,6 +253,10 @@ class GastopViewModel(private val repository: GastopRepository) : ViewModel() {
 
     fun deleteTransaccion(transaccion: Transaccion) {
         viewModelScope.launch { repository.deleteTransaccion(transaccion) }
+    }
+
+    fun clearLocalData() {
+        viewModelScope.launch { repository.clearLocalData() }
     }
 
     fun eliminarTransaccionActual() {

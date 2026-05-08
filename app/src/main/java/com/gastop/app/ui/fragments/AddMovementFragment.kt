@@ -6,9 +6,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -57,18 +54,14 @@ class AddMovementFragment : Fragment() {
             binding.btnEliminar.visibility = View.GONE
         }
 
-        // Configurar Spinner (AutoCompleteTextView) de categorías
+        // Actualizar lista de categorías disponibles
         viewModel.categorias.observe(viewLifecycleOwner) { categorias ->
             listaCategorias = categorias
-            val nombres = categorias.map { it.nombre }
-            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, nombres)
-            binding.spinnerCategoria.setAdapter(adapter)
         }
 
-        binding.spinnerCategoria.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            if (position < listaCategorias.size) {
-                viewModel.formCategoriaId.value = listaCategorias[position].id.toString()
-            }
+        // Abrir diálogo de selección de categoría al tocar el campo
+        binding.spinnerCategoria.setOnClickListener {
+            mostrarDialogoCategoria()
         }
 
         // Observar validez del formulario para habilitar el botón de guardar
@@ -100,11 +93,11 @@ class AddMovementFragment : Fragment() {
             }
         }
 
-        // Observar Categoría para el AutoCompleteTextView
+        // Observar Categoría y actualizar el campo de texto
         viewModel.formCategoriaId.observe(viewLifecycleOwner) { catId ->
             val categoria = listaCategorias.find { it.id.toString() == catId }
             if (categoria != null && binding.spinnerCategoria.text.toString() != categoria.nombre) {
-                binding.spinnerCategoria.setText(categoria.nombre, false)
+                binding.spinnerCategoria.setText(categoria.nombre)
             }
         }
 
@@ -148,6 +141,33 @@ class AddMovementFragment : Fragment() {
     }
 
 
+    private fun mostrarDialogoCategoria() {
+        if (listaCategorias.isEmpty()) {
+            // Reinicializar categorías (pasa al re-login con activityViewModels)
+            viewModel.reiniciarSync()
+            // Observar una sola vez hasta que las categorías carguen y luego abrir el diálogo
+            viewModel.categorias.observe(viewLifecycleOwner) { cats ->
+                if (cats.isNotEmpty()) {
+                    viewModel.categorias.removeObservers(viewLifecycleOwner)
+                    // Re-registrar el observer normal
+                    viewModel.categorias.observe(viewLifecycleOwner) { categorias ->
+                        listaCategorias = categorias
+                    }
+                    mostrarDialogoCategoria()
+                }
+            }
+            return
+        }
+        val nombres = listaCategorias.map { it.nombre }.toTypedArray()
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Selecciona una categoría")
+            .setItems(nombres) { _, which ->
+                val categoria = listaCategorias[which]
+                viewModel.formCategoriaId.value = categoria.id.toString()
+                binding.spinnerCategoria.setText(categoria.nombre)
+            }
+            .show()
+    }
 
     private fun simpleWatcher(onChanged: (String) -> Unit): TextWatcher {
         return object : TextWatcher {

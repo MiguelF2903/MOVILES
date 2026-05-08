@@ -124,6 +124,9 @@ class ProfileFragment : Fragment() {
 
         // --- Botón de Cerrar Sesión ---
         binding.btnLogout.setOnClickListener {
+            // Limpiar datos locales de Room para que el siguiente usuario no los vea
+            viewModel.clearLocalData()
+
             val app = requireActivity().application as com.gastop.app.MyApplication
             val repository = com.gastop.app.data.repository.AuthRepository(app.auth)
             val factory = com.gastop.app.ui.viewmodel.AuthViewModelFactory(repository)

@@ -18,6 +18,12 @@ interface GastopDao {
     @Delete
     fun deleteTransaccion(transaccion: Transaccion)
 
+    @Query("DELETE FROM transacciones")
+    fun deleteAllTransacciones()
+
+    @Query("DELETE FROM categorias")
+    fun deleteAllCategorias()
+
     @Query("SELECT * FROM transacciones ORDER BY fecha DESC")
     fun getAllTransacciones(): Flow<List<Transaccion>>
 
